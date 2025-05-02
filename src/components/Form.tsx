@@ -1,17 +1,23 @@
 import { useState } from "react";
-//import { generateQuestion } from "../services/api";
 import { QuestionInput, GeneratedQuestion } from "../types";
 
 interface Props {
-  onGenerated: (q: GeneratedQuestion[]) => void;  // Change from single question to array of questions
+  onGenerated: (q: GeneratedQuestion[]) => void; // Change from single question to array of questions
 }
 
 export default function Form({ onGenerated }: Props) {
-  const [form, setForm] = useState<QuestionInput>({ role: "", experience: "junior" });
+  const [form, setForm] = useState<QuestionInput>({
+    jobRequirements: "",  // Renaming the role to jobRequirements
+    experience: "junior",
+  });
   const [loading, setLoading] = useState(false);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -23,24 +29,23 @@ export default function Form({ onGenerated }: Props) {
       });
       const data: GeneratedQuestion[] = await res.json();
       onGenerated(data);
-      setForm({ role: "", experience: "junior" });
+      setForm({ jobRequirements: "", experience: "junior" });  // Clear the form after submission
     } catch (err) {
       console.error("Error generating questions:", err);
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <input
-        name="role"
-        value={form.role}
+        name="jobRequirements"
+        value={form.jobRequirements}
         onChange={handleChange}
-        placeholder="Job Role"
+        placeholder="Enter job requirements (e.g., React, Node, Redux)"
         required
-        className="border border-gray-300 rounded px-4 py-2"
+        className="border border-gray-300 rounded px-4 py-2 placeholder-gray-400"
       />
       <label className="text-sm font-medium text-gray-700">
         Experience Level
@@ -58,7 +63,9 @@ export default function Form({ onGenerated }: Props) {
       <button
         type="submit"
         disabled={loading}
-        className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 transition"
+        className={`bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 transition ${
+          !loading && "cursor-pointer"
+        }`}
       >
         {loading ? "Loading..." : "Generate"}
       </button>

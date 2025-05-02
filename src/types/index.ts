@@ -1,5 +1,5 @@
 export interface QuestionInput {
-    role: string;
+  jobRequirements: string;
     experience: "junior" | "mid" | "senior";
   }
   
