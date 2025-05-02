@@ -8,21 +8,29 @@ interface Props {
 
 export default function Form({ onGenerated }: Props) {
   const [form, setForm] = useState<QuestionInput>({ role: "", experience: "junior" });
-
+  const [loading, setLoading] = useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:8000/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    const data: GeneratedQuestion[] = await res.json();
-    onGenerated(data);  // Pass the array of questions to the parent
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:8000/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data: GeneratedQuestion[] = await res.json();
+      onGenerated(data);
+      setForm({ role: "", experience: "junior" });
+    } catch (err) {
+      console.error("Error generating questions:", err);
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -49,9 +57,10 @@ export default function Form({ onGenerated }: Props) {
       </label>
       <button
         type="submit"
+        disabled={loading}
         className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 transition"
       >
-        Generate
+        {loading ? "Loading..." : "Generate"}
       </button>
     </form>
   );
