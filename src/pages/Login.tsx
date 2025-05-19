@@ -2,6 +2,7 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import axiosClient from "../api/axiosClient";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,10 +11,27 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+
+      const user = result.user;
+      const userData = {
+        sso_id: user.uid,
+        username: user.displayName ?? "",
+        email: user.email ?? "",
+        image: user.photoURL ?? "",
+      };
+
+      // Use axios instance here
+      const response = await axiosClient.post("/login", userData);
+
+      if (response.status !== 200) {
+        throw new Error(response.data.message || "Failed to save user");
+      }
+
       navigate("/");
     } catch (error) {
       console.error("Login error:", error);
+      alert(error|| "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }

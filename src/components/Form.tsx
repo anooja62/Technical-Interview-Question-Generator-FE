@@ -7,7 +7,7 @@ interface Props {
 
 export default function Form({ onGenerated }: Props) {
   const [form, setForm] = useState<QuestionInput>({
-    jobRequirements: "",  // Renaming the role to jobRequirements
+    jobRequirements: "",  
     experience: "junior",
   });
   const [loading, setLoading] = useState(false);
@@ -29,7 +29,7 @@ export default function Form({ onGenerated }: Props) {
       });
       const data: GeneratedQuestion[] = await res.json();
       onGenerated(data);
-      setForm({ jobRequirements: "", experience: "junior" });  // Clear the form after submission
+      setForm({ jobRequirements: "", experience: "junior" });  
     } catch (err) {
       console.error("Error generating questions:", err);
     } finally {
@@ -38,37 +38,36 @@ export default function Form({ onGenerated }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <input
-        name="jobRequirements"
-        value={form.jobRequirements}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <input
+      name="jobRequirements"
+      value={form.jobRequirements}
+      onChange={handleChange}
+      placeholder="Enter job requirements (e.g., React, Node, Redux)"
+      required
+      className="border border-gray-300 rounded-lg px-5 py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition"
+    />
+    <label className="text-sm font-semibold text-gray-700">
+      Experience Level
+      <select
+        name="experience"
+        value={form.experience}
         onChange={handleChange}
-        placeholder="Enter job requirements (e.g., React, Node, Redux)"
-        required
-        className="border border-gray-300 rounded px-4 py-2 placeholder-gray-400"
-      />
-      <label className="text-sm font-medium text-gray-700">
-        Experience Level
-        <select
-          name="experience"
-          value={form.experience}
-          onChange={handleChange}
-          className="mt-1 border border-gray-300 rounded px-4 py-2 w-full"
-        >
-          <option value="junior">Junior</option>
-          <option value="mid">Mid</option>
-          <option value="senior">Senior</option>
-        </select>
-      </label>
-      <button
-        type="submit"
-        disabled={loading}
-        className={`bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 transition ${
-          !loading && "cursor-pointer"
-        }`}
+        className="mt-2 border border-gray-300 rounded-lg px-5 py-3 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition"
       >
-        {loading ? "Loading..." : "Generate"}
-      </button>
-    </form>
+        <option value="junior">Junior</option>
+        <option value="mid">Mid</option>
+        <option value="senior">Senior</option>
+      </select>
+    </label>
+    <button
+      type="submit"
+      disabled={loading}
+      className={`bg-blue-600 text-white rounded-lg px-6 py-3 font-semibold shadow-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition disabled:opacity-50 disabled:cursor-not-allowed`}
+    >
+      {loading ? "Loading..." : "Generate"}
+    </button>
+  </form>
+  
   );
 }
