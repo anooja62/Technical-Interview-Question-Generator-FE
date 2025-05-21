@@ -1,15 +1,16 @@
+// src/pages/Home.tsx
+import Footer from "../components/Footer";
 import Header from "../components/Header";
-import Navbar from "../components/Navbar";
+import MainSection from "../components/MainSection";
 import ProcessOverview from "../components/ProcessOverview";
-import QuestionGenerator from "../components/QuestionGenerator";
 
 export default function Home() {
   return (
     <div>
-      <Navbar/>
-      <Header/>
-      <ProcessOverview/>
-      <QuestionGenerator/>
+      <Header />
+      <ProcessOverview />
+      <MainSection />
+      <Footer/>
     </div>
   );
 }

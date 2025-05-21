@@ -3,11 +3,13 @@ import { auth, provider } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axiosClient from "../api/axiosClient";
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/userSlice";
 
 export default function Login() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-
+  const dispatch = useDispatch();
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
@@ -21,17 +23,22 @@ export default function Login() {
         image: user.photoURL ?? "",
       };
 
-      // Use axios instance here
+      // Save user to backend
       const response = await axiosClient.post("/login", userData);
 
       if (response.status !== 200) {
         throw new Error(response.data.message || "Failed to save user");
       }
 
-      navigate("/");
+   
+//localStorage.setItem("user", JSON.stringify(userData));
+
+dispatch(setUser(userData));
+navigate("/");
+    
     } catch (error) {
       console.error("Login error:", error);
-      alert(error|| "Login failed. Please try again.");
+      alert("Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
