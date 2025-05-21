@@ -2,57 +2,78 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { clearUser } from "../store/userSlice";
-
+import { FaSignOutAlt } from "react-icons/fa";
 export default function Profile() {
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    dispatch(clearUser());
-    localStorage.removeItem("user");
-    navigate("/");
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    if (confirmed) {
+      dispatch(clearUser());
+      localStorage.removeItem("user");
+      navigate("/");
+    }
   };
+  
 
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center">
-        <p className="text-xl text-gray-500">Please log in to view your profile.</p>
+        <p className="text-xl text-gray-500">
+          Please log in to view your profile.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-white to-purple-100 flex items-center justify-center px-4">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
-        <h1 className="text-3xl font-extrabold text-blue-700 mb-4 tracking-tight">
-          Your Profile
-        </h1>
-
+    <div className="min-h-screen flex bg-gradient-to-tr from-blue-50 via-white to-purple-100">
+      {/* Sidebar */}
+      <aside className="w-full sm:w-72 bg-white shadow-xl p-6 flex flex-col items-center">
         <img
           src={user.image}
           alt="Profile"
-          className="w-28 h-28 rounded-full border-4 border-blue-600 object-cover mx-auto mb-4 shadow-md"
+          className="w-24 h-24 rounded-full border-4 border-blue-500 mb-4 object-cover"
         />
-
-        <div className="space-y-3 text-gray-700 text-left">
-          <div className="flex justify-between border-b pb-2">
-       
-            <span className="font-semibold">{user.username || "—"}</span>
-          </div>
-          <div className="flex justify-between border-b pb-2">
-  
-            <span className="font-semibold">{user.email || "—"}</span>
-          </div>
-        </div>
-
+        <h2 className="text-lg font-bold text-blue-700">{user.username}</h2>
+        <p className="text-sm text-gray-600">{user.email}</p>
         <button
           onClick={handleLogout}
-          className="mt-6 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition"
+          className="mt-6 flex items-center gap-2 bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition font-semibold"
         >
+          <FaSignOutAlt />
           Logout
         </button>
-      </div>
+      </aside>
+
+      {/* Main Profile Content */}
+      <main className="flex-1 p-6">
+        <h1 className="text-2xl font-bold text-purple-700 mb-4">
+          Quiz Progress
+        </h1>
+
+        {/* Placeholder for quiz stats */}
+        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+          <div className="bg-white rounded-xl p-4 shadow text-center">
+            <h2 className="text-xl font-semibold text-blue-700">
+              Total Quizzes
+            </h2>
+            <p className="mt-2 text-2xl font-bold text-gray-800">5</p>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow text-center">
+            <h2 className="text-xl font-semibold text-green-700">Best Score</h2>
+            <p className="mt-2 text-2xl font-bold text-gray-800">4 / 5</p>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow text-center">
+            <h2 className="text-xl font-semibold text-purple-700">
+              Average Score
+            </h2>
+            <p className="mt-2 text-2xl font-bold text-gray-800">3.6</p>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

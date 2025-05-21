@@ -1,64 +1,88 @@
-import { useState } from "react";
-
-const sampleQuestions = [
-  {
-    id: 1,
-    question: "What does `useState` do in React?",
-    options: [
-      "Updates the DOM",
-      "Manages side effects",
-      "Manages component state",
-      "Handles routing"
-    ],
-    answer: 2,
-  },
-  {
-    id: 2,
-    question: "Which HTTP method is used to create a resource?",
-    options: ["GET", "POST", "PUT", "DELETE"],
-    answer: 1,
-  },
-];
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectOption,
+  nextQuestion,
+  prevQuestion,
+  submitQuiz,
+  resetQuiz,
+  setQuestions,
+} from "../store/quizSlice";
+import axiosClient from "../api/axiosClient";
+import { RootState } from "../store";
+import {  useState } from "react";
 
 export default function Quiz() {
-  const [current, setCurrent] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [answers, setAnswers] = useState<number[]>([]);
-  const [submitted, setSubmitted] = useState(false);
+  const dispatch = useDispatch();
+  const { questions, current, selected, answers, submitted } = useSelector(
+    (state: RootState) => state.quiz
+  );
 
-  const handleOptionClick = (index: number) => {
-    setSelected(index);
-  };
+  const [jobRequirements, setJobRequirements] = useState("");
+  const [experience, setExperience] = useState("junior");
+  const [quizStarted, setQuizStarted] = useState(false);
 
-  const handleNext = () => {
-    if (selected !== null) {
-      const updatedAnswers = [...answers];
-      updatedAnswers[current] = selected;
-      setAnswers(updatedAnswers);
-      setSelected(null);
-      setCurrent((prev) => prev + 1);
+  const fetchQuestions = async () => {
+    try {
+      const response = await axiosClient.post("/quiz", {
+        jobRequirements,
+        experience,
+      });
+      dispatch(setQuestions(response.data.questions));
+      setQuizStarted(true);
+    } catch (err) {
+      console.error("Failed to load questions", err);
     }
   };
 
-  const handlePrev = () => {
-    setCurrent((prev) => prev - 1);
-    setSelected(answers[current - 1] ?? null);
-  };
+  if (!quizStarted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-100 px-4">
+        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full">
+          <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">Start Quiz</h2>
 
-  const handleSubmit = () => {
-    if (selected !== null) {
-      const updatedAnswers = [...answers];
-      updatedAnswers[current] = selected;
-      setAnswers(updatedAnswers);
-    }
-    setSubmitted(true);
-  };
+          <label className="block mb-4">
+            <span className="text-gray-700 font-medium">Job Requirements</span>
+            <input
+              type="text"
+              value={jobRequirements}
+              onChange={(e) => setJobRequirements(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring focus:ring-blue-200 placeholder-gray-400 "
+              placeholder="e.g., React, Node.js, MongoDB"
+            />
+          </label>
+
+          <label className="block mb-6">
+            <span className="text-gray-700 font-medium">Experience Level</span>
+            <select
+              value={experience}
+              onChange={(e) => setExperience(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring focus:ring-blue-200"
+            >
+              <option value="junior">Junior</option>
+              <option value="mid">Mid</option>
+              <option value="senior">Senior</option>
+            </select>
+          </label>
+
+          <button
+            onClick={fetchQuestions}
+            className="w-full bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition"
+            disabled={!jobRequirements.trim()}
+          >
+            Start Quiz
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) return <p className="text-center">Loading questions...</p>;
 
   const score = answers.reduce((acc, ans, idx) => {
-    return ans === sampleQuestions[idx].answer ? acc + 1 : acc;
+    return ans === questions[idx]?.answer ? acc + 1 : acc;
   }, 0);
 
-  const isLastQuestion = current === sampleQuestions.length - 1;
+  const isLastQuestion = current === questions.length - 1;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-100 flex items-center justify-center px-4 py-10">
@@ -66,16 +90,16 @@ export default function Quiz() {
         {!submitted ? (
           <>
             <h2 className="text-xl font-bold text-blue-700 mb-4">
-              Question {current + 1} of {sampleQuestions.length}
+              Question {current + 1} of {questions.length}
             </h2>
             <p className="text-gray-800 text-lg mb-6 font-medium">
-              {sampleQuestions[current].question}
+              {questions[current].question}
             </p>
             <div className="space-y-3 mb-6">
-              {sampleQuestions[current].options.map((option, index) => (
+              {questions[current].options.map((option, index) => (
                 <button
                   key={index}
-                  onClick={() => handleOptionClick(index)}
+                  onClick={() => dispatch(selectOption(index))}
                   className={`block w-full text-left px-4 py-3 rounded-lg border ${
                     selected === index
                       ? "bg-blue-600 text-white border-blue-700"
@@ -88,7 +112,7 @@ export default function Quiz() {
             </div>
             <div className="flex justify-between mt-6">
               <button
-                onClick={handlePrev}
+                onClick={() => dispatch(prevQuestion())}
                 disabled={current === 0}
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition disabled:opacity-50"
               >
@@ -96,14 +120,14 @@ export default function Quiz() {
               </button>
               {isLastQuestion ? (
                 <button
-                  onClick={handleSubmit}
+                  onClick={() => dispatch(submitQuiz())}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition"
                 >
                   Submit
                 </button>
               ) : (
                 <button
-                  onClick={handleNext}
+                  onClick={() => dispatch(nextQuestion())}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"
                 >
                   Next
@@ -115,14 +139,12 @@ export default function Quiz() {
           <div className="text-center">
             <h2 className="text-3xl font-bold text-green-600 mb-4">Quiz Completed!</h2>
             <p className="text-xl text-gray-700">
-              Your Score: <span className="font-bold">{score}</span> / {sampleQuestions.length}
+              Your Score: <span className="font-bold">{score}</span> / {questions.length}
             </p>
             <button
               onClick={() => {
-                setCurrent(0);
-                setAnswers([]);
-                setSelected(null);
-                setSubmitted(false);
+                dispatch(resetQuiz());
+                setQuizStarted(false);
               }}
               className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
             >

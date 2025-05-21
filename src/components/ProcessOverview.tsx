@@ -2,8 +2,10 @@ export default function ProcessOverview() {
   return (
     <div className="bg-gradient-to-b from-purple-100 via-white to-blue-50 py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-3xl font-extrabold text-gray-900">Ace Your Interview in 3 Steps</h2>
-        <p className="mt-4 text-lg text-gray-600">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900">
+          Ace Your Interview in 3 Steps
+        </h2>
+        <p className="mt-4 text-base sm:text-lg md:text-xl text-gray-600">
           Crack technical interviews with smart question generation and real-time practice.
         </p>
       </div>
@@ -22,7 +24,7 @@ export default function ProcessOverview() {
           },
           {
             title: "Practice & Improve",
-            color: "green-600",
+            color: "blue-600",
             desc: "Attempt quizzes, review answers, and get closer to cracking the job."
           },
         ].map(({ title, color, desc }, idx) => (
@@ -30,10 +32,10 @@ export default function ProcessOverview() {
             key={idx}
             className="p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-2 hover:scale-105 duration-300 cursor-pointer"
           >
-            <h3 className={`text-xl font-semibold text-${color} mb-2`}>
+            <h3 className={`text-lg sm:text-xl md:text-2xl font-semibold text-${color} mb-2`}>
               {idx + 1}. {title}
             </h3>
-            <p className="text-gray-600">{desc}</p>
+            <p className="text-sm sm:text-base md:text-lg text-gray-600">{desc}</p>
           </div>
         ))}
       </div>
