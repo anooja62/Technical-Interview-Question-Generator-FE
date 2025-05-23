@@ -12,6 +12,7 @@ interface QuizState {
   selected: number | null;
   answers: number[];
   submitted: boolean;
+  history: { score: number; total: number; timestamp: number }[];
 }
 
 const initialState: QuizState = {
@@ -20,6 +21,7 @@ const initialState: QuizState = {
   selected: null,
   answers: [],
   submitted: false,
+  history: [],
 };
 
 export const quizSlice = createSlice({
@@ -48,7 +50,18 @@ export const quizSlice = createSlice({
         state.answers[state.current] = state.selected;
       }
       state.submitted = true;
+    
+      const score = state.answers.reduce((acc, ans, idx) => {
+        return ans === state.questions[idx]?.answer ? acc + 1 : acc;
+      }, 0);
+    
+      state.history.push({
+        score,
+        total: state.questions.length,
+        timestamp: Date.now(),
+      });
     },
+    
     resetQuiz: (state) => {
       state.current = 0;
       state.selected = null;

@@ -3,11 +3,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { clearUser } from "../store/userSlice";
 import { FaSignOutAlt } from "react-icons/fa";
+
 export default function Profile() {
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { history } = useSelector((state: RootState) => state.quiz);
 
+  const totalQuizzes = history.length;
+  const bestScore = history.reduce((max, q) => Math.max(max, q.score), 0);
+  const averageScore = totalQuizzes
+    ? (history.reduce((sum, q) => sum + q.score, 0) / totalQuizzes).toFixed(1)
+    : "0.0";
+  
   const handleLogout = () => {
     const confirmed = window.confirm("Are you sure you want to logout?");
     if (confirmed) {
@@ -60,17 +68,17 @@ export default function Profile() {
             <h2 className="text-xl font-semibold text-blue-700">
               Total Quizzes
             </h2>
-            <p className="mt-2 text-2xl font-bold text-gray-800">5</p>
+            <p className="mt-2 text-2xl font-bold text-gray-800">{totalQuizzes}</p>
           </div>
           <div className="bg-white rounded-xl p-4 shadow text-center">
             <h2 className="text-xl font-semibold text-green-700">Best Score</h2>
-            <p className="mt-2 text-2xl font-bold text-gray-800">4 / 5</p>
+            <p className="mt-2 text-2xl font-bold text-gray-800">{bestScore}</p>
           </div>
           <div className="bg-white rounded-xl p-4 shadow text-center">
             <h2 className="text-xl font-semibold text-purple-700">
               Average Score
             </h2>
-            <p className="mt-2 text-2xl font-bold text-gray-800">3.6</p>
+            <p className="mt-2 text-2xl font-bold text-gray-800">{averageScore}</p>
           </div>
         </div>
       </main>

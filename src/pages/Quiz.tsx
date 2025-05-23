@@ -99,20 +99,40 @@ export default function Quiz() {
               {questions[current].question}
             </p>
             <div className="space-y-3 mb-6">
-              {questions[current].options.map((option, index) => (
-                <button
-                  key={index}
-                  onClick={() => dispatch(selectOption(index))}
-                  className={`block w-full text-left px-4 py-3 rounded-lg border ${
-                    selected === index
-                      ? "bg-blue-600 text-white border-blue-700"
-                      : "bg-white text-gray-700 hover:bg-blue-50"
-                  } transition`}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
+  {questions[current].options.map((option, index) => {
+    const isCorrect = index === questions[current].answer;
+    const isSelected = selected !== null && index === selected;
+
+    let styles = "bg-white text-gray-700 hover:bg-blue-50";
+    if (selected !== null) {
+      if (isSelected && isCorrect) {
+        styles = "bg-green-100 text-green-800 border border-green-500";
+      } else if (isSelected && !isCorrect) {
+        styles = "bg-red-100 text-red-800 border border-red-500";
+      } else if (!isSelected && isCorrect) {
+        styles = "bg-green-50 text-green-700 border border-green-300";
+      } else {
+        styles += " opacity-50";
+      }
+    }
+
+    return (
+      <button
+        key={index}
+        onClick={() => {
+          if (selected === null) {
+            dispatch(selectOption(index));
+          }
+        }}
+        disabled={selected !== null}
+        className={`block w-full text-left px-4 py-3 rounded-lg transition ${styles}`}
+      >
+        {option}
+      </button>
+    );
+  })}
+</div>
+
             <div className="flex justify-between mt-6">
         
               <div className="flex flex-wrap gap-4 mt-6 justify-between">
@@ -149,30 +169,38 @@ export default function Quiz() {
             </div>
           </>
         ) : (
-          <div className="text-center">
-          <h2 className="text-3xl font-bold text-green-600 mb-4">Quiz Completed!</h2>
-          <p className="text-xl text-gray-700">
-            Your Score: <span className="font-bold">{score}</span> / {questions.length}
-          </p>
-        
-          <div className="flex justify-center gap-4 mt-6 flex-wrap">
-            <button
-              onClick={() => {
-                dispatch(resetQuiz());
-                setQuizStarted(false);
-              }}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-            >
-              Retake Quiz
-            </button>
-            <button
-              onClick={() => navigate("/profile")}
-              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
-            >
-              Go to Profile
-            </button>
-          </div>
-        </div>
+          
+      <div>
+   
+
+    <div className="text-center">
+  <h2 className="text-3xl font-bold text-green-600 mb-4">Quiz Completed!</h2>
+  <p className="text-xl text-gray-700">
+    Your Score: <span className="font-bold">{score}</span> / {questions.length}
+  </p>
+
+  <div className="flex justify-center gap-4 mt-6 flex-wrap">
+    <button
+      onClick={() => {
+        dispatch(resetQuiz());
+        setQuizStarted(false);
+      }}
+      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+    >
+      Retake Quiz
+    </button>
+    <button
+      onClick={() => navigate("/profile")}
+      className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
+    >
+      Go to Profile
+    </button>
+  </div>
+</div>
+
+         
+
+  </div>
         
         )}
       </div>
