@@ -10,9 +10,12 @@ import {
 import axiosClient from "../api/axiosClient";
 import { RootState } from "../store";
 import {  useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Quiz() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { questions, current, selected, answers, submitted } = useSelector(
     (state: RootState) => state.quiz
   );
@@ -111,46 +114,66 @@ export default function Quiz() {
               ))}
             </div>
             <div className="flex justify-between mt-6">
-              <button
-                onClick={() => dispatch(prevQuestion())}
-                disabled={current === 0}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition disabled:opacity-50"
-              >
-                Previous
-              </button>
-              {isLastQuestion ? (
-                <button
-                  onClick={() => dispatch(submitQuiz())}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition"
-                >
-                  Submit
-                </button>
-              ) : (
-                <button
-                  onClick={() => dispatch(nextQuestion())}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"
-                >
-                  Next
-                </button>
-              )}
+        
+              <div className="flex flex-wrap gap-4 mt-6 justify-between">
+  <button
+    onClick={() => dispatch(prevQuestion())}
+    disabled={current === 0}
+    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition disabled:opacity-50"
+  >
+    Previous
+  </button>
+
+  <div className="flex gap-4">
+    <button
+      onClick={() => dispatch(nextQuestion())}
+      disabled={isLastQuestion}
+      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition disabled:opacity-50"
+    >
+      Next
+    </button>
+
+    <button
+      onClick={() => {
+        if (window.confirm("Are you sure you want to submit the quiz?")) {
+          dispatch(submitQuiz());
+        }
+      }}
+      className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition"
+    >
+      Submit
+    </button>
+  </div>
+</div>
+
             </div>
           </>
         ) : (
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-green-600 mb-4">Quiz Completed!</h2>
-            <p className="text-xl text-gray-700">
-              Your Score: <span className="font-bold">{score}</span> / {questions.length}
-            </p>
+          <h2 className="text-3xl font-bold text-green-600 mb-4">Quiz Completed!</h2>
+          <p className="text-xl text-gray-700">
+            Your Score: <span className="font-bold">{score}</span> / {questions.length}
+          </p>
+        
+          <div className="flex justify-center gap-4 mt-6 flex-wrap">
             <button
               onClick={() => {
                 dispatch(resetQuiz());
                 setQuizStarted(false);
               }}
-              className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
             >
               Retake Quiz
             </button>
+            <button
+              onClick={() => navigate("/profile")}
+              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
+            >
+              Go to Profile
+            </button>
           </div>
+        </div>
+        
         )}
       </div>
     </div>
